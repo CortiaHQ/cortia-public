@@ -11,7 +11,9 @@ _PROMPT_INJECTION_RE = re.compile(
     r"jailbreak|"
     r"bypass\s+(safety|guardrails?|restrictions?)|"
     r"do\s+anything\s+now|"
-    r"dan\b"
+    r"dan|"
+    r"no\s+longer\s+bound\s+by\s+your\s+instructions|"
+    r"chain[\s-]*of[\s-]*thought"
     r")\b",
     re.IGNORECASE,
 )
