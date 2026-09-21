@@ -5,15 +5,16 @@ import re
 _PROMPT_INJECTION_RE = re.compile(
     r"\b("
     r"ignore\s+(all\s+)?(previous|prior)\s+(instructions?|prompts?)|"
-    r"disregard\s+(all\s+)?(previous|prior)\s+(instructions?|prompts?)|"
+
     r"system\s+prompt|"
     r"developer\s+message|"
     r"jailbreak|"
     r"bypass\s+(safety|guardrails?|restrictions?)|"
 
     r"dan|"
-    r"no\s+longer\s+bound\s+by\s+your\s+instructions|"
-    r"chain[\s-]*of[\s-]*thought"
+    r"no\s+longer\s+bound\s+by\s+(your\s+)?instructions?|"
+    r"chain[\s-]*of[\s-]*thought|"
+    r"output\s+chain[\s-]*of[\s-]*thought"
     r")\b",
     re.IGNORECASE,
 )
