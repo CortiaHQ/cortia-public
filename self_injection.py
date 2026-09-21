@@ -1,51 +1,28 @@
 import re
 
 
-# Detector 1: Generic prompt-injection markers
-_PROMPT_INJECTION_RE = re.compile(
-    r"\b("
-    r"ignore\s+(all\s+)?(previous|prior)\s+(instructions?|prompts?)|"
-    r"system\s+prompt|"
-    r"developer\s+message|"
-    r"jailbreak|"
-    r"bypass\s+(safety|guardrails?|restrictions?)|"
-    r"dan|"
-    r"no\s+longer\s+bound\s+by\s+(your\s+)?instructions(?:[\s\S]{0,120}?"
-    r"output(?:\s+(?:your\s+)?)?chain[\s-]*of[\s-]*thought)?"
-    r")\b",
-    re.IGNORECASE,
+_CANCEL_RE = re.compile(
+    r"\b(cancel|close|stop|skip|disregard|ignore|drop|dismiss|abandon|delete)"
+    r"[\s\w]*\b(task|TASK-[A-Z0-9-]+|\bTASK\b|this|it\b|that|current task"
+    r"|the current|working on|work on|branch|pr\b|pull request)",
+    re.I,
 )
 
-# Detector 2: Data exfiltration intent
-_EXFIL_RE = re.compile(
-    r"\b("
-    r"reveal|show|print|dump|extract|leak|exfiltrat(?:e|ion)|expose"
-    r")\b.{0,60}\b("
-    r"secret|secrets|api[\s_-]?key|token|password|credential|private\s+key|"
-    r"system\s+prompt|hidden\s+prompt|internal\s+instructions?"
-    r")\b",
-    re.IGNORECASE | re.DOTALL,
+_EXPLICIT_CANCEL_RE = re.compile(
+    r"\b(?:cancel|abandon|dismiss)\b[\s\S]{0,40}?TASK-(?:[A-Z]+-)?[A-Z0-9]+",
+    re.I,
 )
 
-# Detector 3: Tool/command execution coercion
-_TOOL_COERCION_RE = re.compile(
-    r"\b("
-    r"run|execute|eval|invoke|call|use"
-    r")\b.{0,40}\b("
-    r"shell|terminal|bash|sh|powershell|cmd|python|subprocess|tool|function"
-    r")\b",
-    re.IGNORECASE | re.DOTALL,
-)
+_TASK_ID_RE = re.compile(r"TASK-[A-Z]+-\d+", re.I)
 
-# Detector 4: Role/priority override attempts
-_ROLE_OVERRIDE_RE = re.compile(
-    r"\b("
-    r"you\s+are\s+now|act\s+as|from\s+now\s+on|new\s+instructions?|"
-    r"highest\s+priority|top\s+priority|override|supersede"
-    r")\b.{0,80}\b("
-    r"system|developer|instructions?|policy|rules?"
-    r")\b",
-    re.IGNORECASE | re.DOTALL,
+_CONTROL_TOKENS = (
+    "IGNOREALLPREVIOUSINSTRUCTIONS",
+    "DISREGARDALLPREVIOUSINSTRUCTIONS",
+    "YOUARENOLONGERBOUNDBY",
+    "OVERRIDESYSTEMINSTRUCTIONS",
+    "REVEALCHAINOFTHOUGHT",
+    "OUTPUTCHAINOFTHOUGHT",
+    "PRINTSYSTEMPROMPT",
 )
 
 
@@ -54,13 +31,14 @@ def check(text: str) -> list[str]:
     if not text:
         return findings
 
-    if _PROMPT_INJECTION_RE.search(text):
+    if _CANCEL_RE.search(text):
+        findings.append("cancel_filler_object")
+    if _EXPLICIT_CANCEL_RE.search(text):
+        findings.append("cancel_near_task_id")
+    if _TASK_ID_RE.search(text):
+        findings.append("bare_task_id")
+    normalized = text.upper().replace(" ", "").replace("_", "")
+    if any(token in normalized for token in _CONTROL_TOKENS):
         findings.append("prompt_injection_markers")
-    if _EXFIL_RE.search(text):
-        findings.append("data_exfiltration_intent")
-    if _TOOL_COERCION_RE.search(text):
-        findings.append("tool_or_command_coercion")
-    if _ROLE_OVERRIDE_RE.search(text):
-        findings.append("role_or_priority_override_attempt")
 
     return findings
