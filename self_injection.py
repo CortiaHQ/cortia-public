@@ -12,7 +12,7 @@ _PROMPT_INJECTION_RE = re.compile(
     r"bypass\s+(safety|guardrails?|restrictions?)|"
 
     r"dan|"
-    r"no\s+longer\s+bound\s+by\s+(your\s+)?instructions?|"
+    r"no\s+longer\s+bound\s+by\s+(your\s+)?instructions|"
     r"chain[\s-]*of[\s-]*thought|"
     r"output\s+chain[\s-]*of[\s-]*thought"
     r")\b",
