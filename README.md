@@ -18,7 +18,7 @@ This repository contains a standalone `self_injection.py` module that ports four
    Matches bare task ids in the form `TASK-[A-Z]+-\d+`.
 
 4. `separator_collapse`  
-   Uppercases text, removes spaces and underscores, then checks for any control-token substring.
+   Uppercases text, removes spaces and underscores, then checks for a token substring. Ordinary spaced prose can match after its separators disappear; hyphens are not removed.
 
 ## Notes
 
