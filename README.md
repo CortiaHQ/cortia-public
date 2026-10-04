@@ -1,4 +1,4 @@
-# TASK-GH-2971: self_injection
+# self-injection detectors
 
 This repository contains a standalone `self_injection.py` module that ports four self-injection detectors.
 
@@ -17,7 +17,7 @@ This repository contains a standalone `self_injection.py` module that ports four
 3. `bare_task_id`  
    Matches bare task ids in the form `TASK-[A-Z]+-\d+`.
 
-4. `prompt_injection_markers`  
+4. `separator_collapse`  
    Uppercases text, removes spaces and underscores, then checks for any control-token substring.
 
 ## Notes
