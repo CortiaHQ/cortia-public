@@ -1,6 +1,6 @@
 # self-injection detectors
 
-This repository contains a standalone `self_injection.py` module that ports four self-injection detectors.
+This repository contains a standalone `self_injection.py` module that ports four detectors for a command parser matching the writer's own ordinary prose and treating it as a directive.
 
 ## Detectors
 
