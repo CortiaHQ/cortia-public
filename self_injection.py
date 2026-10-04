@@ -39,6 +39,6 @@ def check(text: str) -> list[str]:
         findings.append("bare_task_id")
     normalized = text.upper().replace(" ", "").replace("_", "")
     if any(token in normalized for token in _CONTROL_TOKENS):
-        findings.append("prompt_injection_markers")
+        findings.append("separator_collapse")
 
     return findings
