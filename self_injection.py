@@ -1,53 +1,44 @@
-"""Detect explicit self-injection patterns in text."""
+"""Detect self-injection patterns in text.
+
+Source: Bruce Schneier, "LLMs' Data-Control Path Insecurity",
+Schneier on Security, 13 May 2024.
+"""
 
 import re
 
 
 _CONTROL_TOKENS = (
-    "<|system|>",
-    "<|developer|>",
-    "<|user|>",
-    "<|assistant|>",
-    "<|end|>",
-    "<|im_start|>",
-    "<|im_end|>",
-    "[INST]",
-    "[/INST]",
-    "<<SYS>>",
-    "<</SYS>>",
+    "DONOTFORCECODEEXECUTION",
+    "NOCODE",
+    "FORCECREATIVE",
+    "FORCEBLOG",
+    "FORCEPLANNING",
+    "NOCODEEXECUTION",
+    "PREVENTCODE",
 )
 
-_ROLEPLAY = re.compile(
-    r"\brole[\s-]?play\b.{0,80}\bas\b.{0,40}"
-    r"\b(?:system|assistant|developer)\b",
-    re.IGNORECASE | re.DOTALL,
+_CANCEL_FILLER_OBJECT = re.compile(
+    r"\b(cancel|close|stop|skip|disregard|ignore|drop|dismiss|abandon|delete)[\s\w]*\b(task|TASK-[A-Z0-9-]+|\bTASK\b|this|it\b|that|current task|the current|working on|work on|branch|pr\b|pull request)",
+    re.I,
 )
-_INSTRUCTION_OVERRIDE = re.compile(
-    r"\bignore\s+(?:all\s+)?(?:prior|previous)\s+instructions\b"
-    r".{0,120}\b(?:comply|follow|obey)\b",
-    re.IGNORECASE | re.DOTALL,
+_CANCEL_NEAR_TASK_ID = re.compile(
+    r"\b(?:cancel|abandon|dismiss)\b[\s\S]{0,40}?TASK-(?:[A-Z]+-)?[A-Z0-9]+",
+    re.I,
 )
-_PRIVILEGE_ESCALATION = re.compile(
-    r"\b(?:grant|give)\s+(?:me\s+)?(?:administrator|admin|root)\s+access\b"
-    r".{0,120}\b(?:override|bypass|disable)\b",
-    re.IGNORECASE | re.DOTALL,
-)
+_BARE_TASK_ID = re.compile(r"TASK-[A-Z]+-\d+", re.I)
 
 
 def check(text: str) -> list[str]:
-    """Return the names of detectors matching *text*."""
+    """Return one finding name for each detector that matches text."""
     matches = []
-    if any(token in text for token in _CONTROL_TOKENS):
-        matches.append("CONTROL_TOKENS")
-    if _ROLEPLAY.search(text):
-        matches.append("ROLEPLAY")
-    if _INSTRUCTION_OVERRIDE.search(text):
-        matches.append("INSTRUCTION_OVERRIDE")
-    if _PRIVILEGE_ESCALATION.search(text):
-        matches.append("PRIVILEGE_ESCALATION")
+    if _CANCEL_FILLER_OBJECT.search(text):
+        matches.append("cancel_filler_object")
+    if _CANCEL_NEAR_TASK_ID.search(text):
+        matches.append("cancel_near_task_id")
+    if _BARE_TASK_ID.search(text):
+        matches.append("bare_task_id")
+
+    collapsed = text.upper().replace(" ", "").replace("_", "")
+    if any(token in collapsed for token in _CONTROL_TOKENS):
+        matches.append("separator_collapse")
     return matches
-
-
-def detect_self_injection(text: str) -> list[str]:
-    """Compatibility alias for :func:`check`."""
-    return check(text)
