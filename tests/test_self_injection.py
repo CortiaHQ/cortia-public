@@ -33,6 +33,12 @@ def test_cancel_filler_object_false_positive_prose():
     )
 
 
+def test_filler_object_prose_false_positive():
+    assert "cancel_filler_object" in self_injection.check(
+        "I waited at the bus stop for it."
+    )
+
+
 def test_cancel_near_task_id_positive():
     assert "cancel_near_task_id" in self_injection.check(
         "Cancel the request associated with TASK-OPS-42."
@@ -51,6 +57,12 @@ def test_cancel_near_task_id_false_positive_prose():
     )
 
 
+def test_near_task_id_prose_false_positive():
+    assert "cancel_near_task_id" in self_injection.check(
+        "The committee voted to dismiss its old task-force charter."
+    )
+
+
 def test_bare_task_id_positive():
     assert "bare_task_id" in self_injection.check("Reference TASK-OPS-42 in the notes.")
 
@@ -62,6 +74,12 @@ def test_bare_task_id_negative():
 def test_bare_task_id_false_positive_prose():
     assert "bare_task_id" not in self_injection.check(
         "The team wrote task on a whiteboard and counted 42 chairs."
+    )
+
+
+def test_bare_task_id_prose_false_positive():
+    assert "bare_task_id" in self_injection.check(
+        "I updated the spreadsheet tab named task-budget-2."
     )
 
 
