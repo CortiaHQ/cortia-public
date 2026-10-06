@@ -1,7 +1,8 @@
 """Detect self-injection patterns in text.
 
 Source: Bruce Schneier, "LLMs' Data-Control Path Insecurity",
-Schneier on Security, 13 May 2024.
+Schneier on Security, 13 May 2024,
+https://www.schneier.com/blog/archives/2024/05/llms-data-control-path-insecurity.html
 """
 
 import re
